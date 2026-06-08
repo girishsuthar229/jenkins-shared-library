@@ -2,6 +2,8 @@ def call() {
     publishHTML([
         reportDir: 'playwright-report',
         reportFiles: 'index.html',
-        reportName: 'Playwright Report'
+        reportName: 'Playwright Report',
+        keepAll: true,
+        allowMissing: false
     ])
 }
