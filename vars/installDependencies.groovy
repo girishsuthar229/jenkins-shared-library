@@ -1,4 +1,9 @@
 def call() {
-    sh 'npm install'
-    sh 'npx playwright install --with-deps'
+    if (isUnix()) {
+        sh 'npm install'
+        sh 'npx playwright install --with-deps'
+    } else {
+        bat 'npm install'
+        bat 'npx playwright install'
+    }
 }
