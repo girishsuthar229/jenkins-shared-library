@@ -4,6 +4,7 @@ def call() {
         reportFiles: 'index.html',
         reportName: 'Playwright Report',
         keepAll: true,
-        allowMissing: false
+        allowMissing: false,
+        alwaysLinkToLastBuild: true,
     ])
 }
