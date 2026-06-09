@@ -3,9 +3,9 @@ def call() {
         echo "🧪 Running Playwright tests..."
 
         if (isUnix()) {
-            sh 'npx playwright test --reporter=html'
+            sh 'npx playwright test'
         } else {
-            bat 'npx playwright test --reporter=html'
+            bat 'npx playwright test'
         }
 
     } catch (err) {
