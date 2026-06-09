@@ -1,7 +1,11 @@
 def call() {
     echo "Checking Allure results..."
 
-    sh 'ls -R allure-results || true'
+    if (isUnix()) {
+        sh 'ls -R allure-results || true'
+    } else {
+        bat 'dir allure-results'
+    }
 
     allure([
         includeProperties: false,
