@@ -1,10 +1,11 @@
 def call() {
     publishHTML(target: [
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
         reportDir: 'playwright-report',
         reportFiles: 'index.html',
-        reportName: 'Playwright Report'
+        reportName: 'Playwright Report',
+        keepAll: true,
+        alwaysLinkToLastBuild: true,
+        allowMissing: false,
+        useWrapperFileDirectly: true
     ])
 }
