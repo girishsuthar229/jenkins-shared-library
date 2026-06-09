@@ -8,11 +8,19 @@ def call() {
             bat 'npx playwright test'
         }
 
+        echo "Checking Allure results..."
+
+        if (isUnix()) {
+            sh 'ls -R allure-results || true'
+        } else {
+            bat 'dir allure-results'
+        }
+
     } catch (err) {
         echo "⚠️ Playwright tests failed but continuing pipeline..."
         currentBuild.result = 'UNSTABLE'
 
     } finally {
-        echo "📄 Test execution completed. Reports should be generated (playwright-report/)"
+        echo "📄 Test execution completed."
     }
 }

@@ -1,5 +1,5 @@
 def call() {
-    echo "Checking Allure results..."
+    echo "Publishing Allure Report..."
 
     if (isUnix()) {
         sh 'ls -R allure-results || true'
