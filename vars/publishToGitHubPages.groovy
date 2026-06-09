@@ -1,15 +1,12 @@
 def call(Map config = [:]) {
-
     def repoUrl = config.repoUrl ?: error("repoUrl is required")
-    def branch  = config.branch ?: 'gh-pages'
+    def branch = config.branch ?: 'gh-pages'
     def reportDir = config.reportDir ?: 'allure-report'
     def gitUser = config.gitUser ?: 'Jenkins CI'
     def gitEmail = config.gitEmail ?: 'jenkins@example.com'
     def credentialsId = config.credentialsId ?: error("credentialsId is required")
     def publicUrl = config.publicUrl ?: ''
-    def emailTo = config.emailTo ?: ''  // ⚡ Make sure you define this
-
-    echo "Publishing report to GitHub Pages..."
+    def emailTo = config.emailTo ?: ''
 
     withCredentials([string(credentialsId: credentialsId, variable: 'GH_TOKEN')]) {
 
@@ -19,17 +16,27 @@ def call(Map config = [:]) {
                 git config --global user.name "${gitUser}"
 
                 rm -rf gh-pages
-                git clone --branch ${branch} https://${GH_TOKEN}@${repoUrl.replace('https://','')} gh-pages
 
-                rm -rf gh-pages/*
-                cp -r ${reportDir}/* gh-pages/
+                # Try to clone branch, if it fails, init a new repo
+                if ! git clone --branch ${branch} https://${GH_TOKEN}@${repoUrl.replace('https://','')} gh-pages; then
+                    mkdir gh-pages
+                    cd gh-pages
+                    git init
+                    git checkout -b ${branch}
+                else
+                    cd gh-pages
+                fi
 
-                cd gh-pages
+                # Clean old report and copy new report
+                rm -rf *
+                cp -r ../${reportDir}/* .
+
                 git add .
-
+                # Only commit if there are changes
                 git diff --cached --quiet || git commit -m "Update Allure report - build ${env.BUILD_NUMBER}"
 
-                git push origin ${branch}
+                # Push branch (create it on remote if missing)
+                git push origin ${branch} --set-upstream
             """
         } else {
             bat """
@@ -37,17 +44,21 @@ def call(Map config = [:]) {
                 git config --global user.name "${gitUser}"
 
                 rmdir /s /q gh-pages
-                git clone --branch ${branch} https://${GH_TOKEN}@${repoUrl.replace('https://','')} gh-pages
-
-                rmdir /s /q gh-pages
-                xcopy ${reportDir}\\* gh-pages /E /I /Y
-
+                git clone --branch ${branch} https://${GH_TOKEN}@${repoUrl.replace('https://','')} gh-pages || (
+                    mkdir gh-pages
+                    cd gh-pages
+                    git init
+                    git checkout -b ${branch}
+                )
                 cd gh-pages
-                git add .
 
+                rmdir /s /q *
+                xcopy ..\\${reportDir}\\* . /E /I /Y
+
+                git add .
                 git diff --cached --quiet || git commit -m "Update Allure report - build ${env.BUILD_NUMBER}"
 
-                git push origin ${branch}
+                git push origin ${branch} --set-upstream
             """
         }
     }
@@ -56,7 +67,6 @@ def call(Map config = [:]) {
         echo "🌐 Public Report URL: ${publicUrl}"
     }
 
-    // ✅ Send email if emailTo is defined
     if (emailTo?.trim()) {
         emailext(
             subject: "Playwright Test Results - Build #${env.BUILD_NUMBER}",
