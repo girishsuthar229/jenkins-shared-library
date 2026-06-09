@@ -1,10 +1,10 @@
 def call() {
-    publishHTML([
-        reportDir: 'playwright-report',
-        reportFiles: 'index.html',
-        reportName: 'Playwright Report',
-        keepAll: true,
+    publishHTML(target: [
         allowMissing: false,
         alwaysLinkToLastBuild: true,
+        keepAll: true,
+        reportDir: 'playwright-report',
+        reportFiles: 'index.html',
+        reportName: 'Playwright Report'
     ])
 }
